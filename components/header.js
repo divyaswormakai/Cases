@@ -3,7 +3,7 @@ import {StyleSheet, View, Text} from 'react-native';
 import SearchBar from './headerComponents/SearchBar';
 import FilterBy from './headerComponents/FilterBy';
 import Categories from './headerComponents/Categories';
-
+import Wards from './headerComponents/Wards';
 const Header = ({
   setSearchName,
   searchName,
@@ -11,6 +11,8 @@ const Header = ({
   setFilterCategory,
   categories,
   setCurrentCategory,
+  allWards,
+  setCurrWard,
 }) => {
   return (
     <View style={styles.headerContent}>
@@ -27,6 +29,9 @@ const Header = ({
           setCurrentCategory={setCurrentCategory}
         />
       </View>
+      <View style={styles.rowContent}>
+        <Wards allWards={allWards} setCurrWard={setCurrWard} />
+      </View>
     </View>
   );
 };
@@ -36,6 +41,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'column',
+    marginBottom: 10,
   },
   rowContent: {
     flex: 1,

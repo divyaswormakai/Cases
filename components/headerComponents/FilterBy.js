@@ -25,5 +25,5 @@ const styles = StyleSheet.create({
   },
 });
 
-const filters = ['All', 'Country', 'Gender', 'Location'];
+const filters = ['All', 'Gender', 'Status'];
 export default FilterBy;

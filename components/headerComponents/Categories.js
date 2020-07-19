@@ -1,26 +1,34 @@
 import React from 'react';
-import {StyleSheet, View, Button} from 'react-native';
+import {StyleSheet, View, Button, ScrollView} from 'react-native';
 
 const Categories = ({categories, setCurrentCategory}) => {
   return (
-    <View style={styles.headerCategories}>
-      {categories.length > 0
-        ? categories.map(category => {
-            return (
-              <Button
-                title={category}
-                onPress={() => setCurrentCategory(category)}
-              />
-            );
-          })
-        : null}
-    </View>
+    <ScrollView horizontal={true}>
+      <View style={styles.headerCategories}>
+        {categories.length > 0
+          ? categories.map(category => {
+              return (
+                <View style={styles.categoryBtn}>
+                  <Button
+                    title={category}
+                    onPress={() => setCurrentCategory(category)}
+                  />
+                </View>
+              );
+            })
+          : null}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   headerCategories: {
     flexDirection: 'row',
+  },
+  categoryBtn: {
+    width: 250,
+    margin: 5,
   },
 });
 

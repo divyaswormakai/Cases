@@ -1,34 +1,34 @@
 import React, {useState} from 'react';
 import {StyleSheet, View, Button, TextInput, Picker} from 'react-native';
 import {Formik} from 'formik';
-const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
-  const [gender, setGender] = useState('Male');
-  const [location, setLocation] = useState(allCategories.Location[0]);
-  const [country, setCountry] = useState(allCategories.Country[0]);
+const EditModal = ({toggleModal, allCategories, data}) => {
+  const [gender, setGender] = useState(data.gender);
+  const [location, setLocation] = useState(data.location);
+  const [country, setCountry] = useState(data.country);
 
   return (
     <View style={styles.modalBody}>
       <Formik
         initialValues={{
-          name: '',
-          gender: 'Male',
-          age: 0,
-          contact: '',
+          name: data.name,
+          gender: data.gender,
+          contact: data.number,
           reasons: '',
+          age: data.age.toString(),
         }}
         onSubmit={values => {
           values.gender = gender;
           values.location = location;
           values.country = country;
-          SaveNewData(values);
           toggleModal();
+          console.log(values);
         }}>
         {props => (
           <>
             <TextInput
               placeholder="Full Name"
               onChangeText={props.handleChange('name')}
-              value={props.values.title}
+              value={props.values.name}
             />
             <View style={styles.modalBodyRow}>
               <View style={styles.modalBodyRowElement}>
@@ -49,9 +49,9 @@ const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
               <View style={styles.modalBodyRowElement}>
                 <TextInput
                   placeholder="Age"
+                  //   keyboardType="number-pad"
                   onChangeText={props.handleChange('age')}
                   value={props.values.age}
-                  keyboardType="number-pad"
                 />
               </View>
             </View>
@@ -144,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FormModal;
+export default EditModal;

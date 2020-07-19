@@ -1,13 +1,5 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, View, AsyncStorage} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Header from './components/header';
 import Body from './components/body';
 import Footer from './components/footer';
@@ -19,22 +11,28 @@ const App = () => {
   const [filterCategory, setFilterCategory] = useState('');
   const [allCategories, setAllCategories] = useState({
     Gender: [],
-    Location: [],
-    Country: [],
+    Status: [],
   });
   const [categories, setCategories] = useState([]);
   //maybe for highlighting for future
   const [currCategory, setCurrCategory] = useState('');
+  //all wards
+  const [allWards, setAllWards] = useState([]);
+  //see current ward
+  const [currWard, setCurrWard] = useState(wards[0]);
   //total data that will be available
   const [wholePopulation, setWholePopulation] = useState([]);
   //total people that will be shown
   const [people, setPeople] = useState([]);
+
+  const [peopleFromFilter, setPeopleFromFilter] = useState([]);
 
   //inital render of the app
   useEffect(() => {
     setWholePopulation(dummyData);
     setPeople(dummyData);
     findAllCategories(dummyData, setAllCategories);
+    setAllWards(wards);
   }, []);
 
   //change people according to the search
@@ -45,6 +43,7 @@ const App = () => {
 
   //Change categories when Filter category is changed
   useEffect(() => {
+    //Get categories according to the filter used
     DifferentiateCategory(
       filterCategory,
       allCategories,
@@ -52,7 +51,9 @@ const App = () => {
       setCurrCategory,
     );
     if (filterCategory === 'All') {
+      setCurrWard(allWards[0]);
       setPeople(wholePopulation);
+      setPeopleFromFilter(wholePopulation);
     }
     //so that default value is not preserved during filter changing
     else {
@@ -61,6 +62,23 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterCategory, wholePopulation]);
 
+  // current ward data setting
+  useEffect(() => {
+    if (currWard.toString() === 'Others') {
+      console.log('Others selecting');
+      let tempPeople = peopleFromFilter.filter(person => person.ward === 15);
+      setPeople(tempPeople);
+    } else if (currWard !== allWards[0]) {
+      let tempPeople = peopleFromFilter.filter(
+        person => person.ward.toString() === currWard,
+      );
+      setPeople(tempPeople);
+    } else {
+      setPeople(peopleFromFilter);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currWard]);
+
   const setCurrentCategory = value => {
     setCurrCategory(value);
     SelectCurrentCategoryPeople(
@@ -68,6 +86,7 @@ const App = () => {
       setPeople,
       value,
       filterCategory,
+      setPeopleFromFilter,
     );
   };
 
@@ -79,6 +98,7 @@ const App = () => {
     setCurrCategory('');
     setFilterCategory('All');
   };
+
   return (
     <View style={styles.content}>
       <Header
@@ -88,8 +108,11 @@ const App = () => {
         setFilterCategory={setFilterCategory}
         categories={categories}
         setCurrentCategory={setCurrentCategory}
+        allWards={allWards}
+        currWard={currWard}
+        setCurrWard={setCurrWard}
       />
-      <Body data={people} />
+      <Body data={people} allCategories={allCategories} />
       <Footer
         SaveNewData={SaveNewData}
         statusData={people}
@@ -117,24 +140,12 @@ const FindPeopleWithSearch = (searchName, wholePopulation, setPeople) => {
 //Find all list of categories
 const findAllCategories = (dummyData, setAllCategories) => {
   let cats = {};
-  let temp = [''];
   //for age
   cats.Gender = genders;
-  //for country
-  dummyData.map(data => {
-    if (!temp.includes(data.country)) {
-      temp.push(data.country);
-    }
-  });
-  cats.Country = temp;
-  temp = [''];
-  //for Location
-  dummyData.map(data => {
-    if (!temp.includes(data.location)) {
-      temp.push(data.location);
-    }
-  });
-  cats.Location = temp;
+
+  //for status:
+  cats.Status = status;
+
   setAllCategories(cats);
 };
 //Differentiate categories based on the selected filterCategory and set default category
@@ -146,16 +157,12 @@ const DifferentiateCategory = (
 ) => {
   let temp = [];
   switch (filterCategory) {
-    case 'Country': {
-      temp = allCategories.Country;
-      break;
-    }
     case 'Gender': {
       temp = allCategories.Gender;
       break;
     }
-    case 'Location': {
-      temp = allCategories.Location;
+    case 'Status': {
+      temp = allCategories.Status;
       break;
     }
     default: {
@@ -175,21 +182,18 @@ const SelectCurrentCategoryPeople = (
   setPeople,
   currCategory,
   filterCategory,
+  setPeopleFromFilter,
 ) => {
   let selectedPeople = [];
-  console.log('PEople classification started');
-  if (filterCategory === 'Country') {
-    selectedPeople = wholePopulation.filter(
-      population => population.country === currCategory,
-    );
-  } else if (filterCategory === 'Gender') {
+  console.log('People classification started');
+  if (filterCategory === 'Gender') {
     console.log('Gender classification');
     selectedPeople = wholePopulation.filter(
       population => population.gender === currCategory,
     );
-  } else if (filterCategory === 'Location') {
+  } else if (filterCategory === 'Status') {
     selectedPeople = wholePopulation.filter(
-      population => population.location === currCategory,
+      population => population.status === currCategory,
     );
   } else {
     selectedPeople = wholePopulation;
@@ -200,115 +204,196 @@ const SelectCurrentCategoryPeople = (
     filterCategory,
     currCategory,
   );
+  setPeopleFromFilter(selectedPeople);
   setPeople(selectedPeople);
 };
 
 const genders = ['Male', 'Female'];
 
+const status = ['Quarantine', 'Home Quarantine', 'Released', 'Isolation'];
+const wards = [
+  'All',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  'Others',
+];
 const dummyData = [
   {
+    id: 1,
     name: 'Person 1',
     gender: 'Male',
     age: 30,
     location: 'Location 1',
     number: '0123456789',
     country: 'Nepal',
+    status: 'Quarantine',
+    ward: 1,
   },
   {
+    id: 2,
     name: 'Person 2',
     gender: 'Male',
     age: 25,
     location: 'Location 2',
     number: '0123456789',
     country: 'India',
+    status: 'Home Quarantine',
+    ward: 1,
   },
   {
+    id: 3,
     name: 'Person 3',
     gender: 'Female',
     age: 25,
     location: 'Location 3',
     number: '0123456789',
     country: 'Kuwait',
+    status: 'Released',
+    ward: 2,
   },
   {
+    id: 4,
     name: 'Person 3',
     gender: 'Male',
     age: 25,
     location: 'Location 3',
     number: '0123456789',
     country: 'USA',
+    status: 'Isolation',
+    ward: 5,
   },
   {
-    name: 'Person 3',
-    gender: 'Female',
-    age: 25,
-    location: 'Location 2',
-    number: '0123456789',
-    country: 'India',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Female',
-    age: 25,
-    location: 'Location 3',
-    number: '0123456789',
-    country: 'China',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Male',
-    age: 25,
-    location: 'Location 3',
-    number: '0123456789',
-    country: 'UAE',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Male',
-    age: 25,
-    location: 'Location 4',
-    number: '0123456789',
-    country: 'Qatar',
-  },
-  {
-    name: 'Person 3',
+    id: 5,
+    name: 'Person 5',
     gender: 'Male',
     age: 25,
     location: 'Location 5',
     number: '0123456789',
-    country: 'Saudi Arabia',
+    country: 'Nepal',
+    status: 'Home Quarantine',
+    ward: 6,
   },
   {
-    name: 'Person 3',
-    gender: 'Male',
-    age: 25,
-    location: 'Location 1',
-    number: '0123456789',
-    country: 'UK',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Male',
-    age: 25,
-    location: 'Location 8',
-    number: '0123456789',
-    country: 'Portugal',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Male',
-    age: 25,
-    location: 'Location 6',
-    number: '0123456789',
-    country: 'Spain',
-  },
-  {
-    name: 'Person 3',
-    gender: 'Male',
+    id: 6,
+    name: 'Person 6',
+    gender: 'Female',
     age: 25,
     location: 'Location 3',
     number: '0123456789',
-    country: 'Qatar',
+    country: 'India',
+    status: 'Home Quarantine',
+    ward: 10,
+  },
+  {
+    id: 7,
+    name: 'Person 7',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 7',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 7,
+  },
+  {
+    id: 8,
+    name: 'Person 8',
+    gender: 'Female',
+    age: 55,
+    location: 'Location 8',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Quarantine',
+    ward: 7,
+  },
+  {
+    id: 8,
+    name: 'Person 8',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 8',
+    number: '0123456889',
+    country: 'Nepal',
+    status: 'Released',
+    ward: 9,
+  },
+  {
+    id: 9,
+    name: 'Person 19',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 0',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Released',
+    ward: 8,
+  },
+  {
+    id: 10,
+    name: 'Person 10',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 10',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 4,
+  },
+  {
+    id: 11,
+    name: 'Person 11',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 7',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 14,
+  },
+  {
+    id: 12,
+    name: 'Person 7',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 7',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 15,
+  },
+  {
+    id: 13,
+    name: 'Person 7',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 7',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 15,
+  },
+  {
+    id: 14,
+    name: 'Person 7',
+    gender: 'Female',
+    age: 25,
+    location: 'Location 7',
+    number: '0123456789',
+    country: 'Nepal',
+    status: 'Isolation',
+    ward: 15,
   },
 ];
 export default App;

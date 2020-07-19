@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {View, Text} from 'react-native';
 import ItemStyle from './BodyListItemStyle';
 
 const BodyListItem = ({data}) => {
@@ -11,6 +11,9 @@ const BodyListItem = ({data}) => {
       </View>
       <View style={ItemStyle.itemRow}>
         <Text>Age: {data.age}</Text>
+        <Text>
+          Ward: {data.ward.toString() === '15' ? 'Others' : data.ward}
+        </Text>
         <Text>Gender: {data.gender}</Text>
         <Text>{data.location}</Text>
       </View>
