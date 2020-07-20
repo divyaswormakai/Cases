@@ -11,6 +11,8 @@ import {
   DeleteDataFirebase,
 } from './utils/database';
 
+import {AddtoSheet, UpdateToSheet, DeleteFromSheet} from './utils/sheets';
+
 const App = () => {
   //for name searching
   const [searchName, setSearchName] = useState('');
@@ -90,11 +92,11 @@ const App = () => {
   const CallInitialFunctions = async () => {
     const peopleData = await getAllDataFirebase();
     console.log('-----App.js--------');
-    console.log(peopleData);
     setWholePopulation(peopleData);
     setPeople(peopleData);
     findAllCategories(peopleData, setAllCategories);
   };
+
   const setCurrentCategory = value => {
     setCurrCategory(value);
     SelectCurrentCategoryPeople(
@@ -107,9 +109,13 @@ const App = () => {
   };
 
   const SaveNewData = async newData => {
-    console.log(newData);
     //savving to firebase
-    await saveDataFirebase(newData);
+    const id = await saveDataFirebase(newData);
+    console.log('---------id--------------');
+    console.log(id.trim());
+    newData.id = id.trim();
+    console.log(newData);
+    await AddtoSheet(newData);
     //in the front end part only
     CallInitialFunctions();
     setCurrCategory('');
@@ -118,9 +124,11 @@ const App = () => {
   };
 
   const UpdateData = async updatedData => {
-    console.log(updatedData);
+    console.log('*****************');
+    console.log(updatedData.id);
     //savving to firebase
     await UpdateDataFirebase(updatedData);
+    await UpdateToSheet(updatedData);
     //in the front end part only
     CallInitialFunctions();
     setCurrCategory('');
@@ -129,8 +137,8 @@ const App = () => {
   };
 
   const DeleteData = async data => {
-    console.log(data.id);
     await DeleteDataFirebase(data);
+    await DeleteFromSheet(data);
     //in the front end part only
     CallInitialFunctions();
     setCurrCategory('');
@@ -244,12 +252,12 @@ const SelectCurrentCategoryPeople = (
   } else {
     selectedPeople = wholePopulation;
   }
-  console.log(
-    wholePopulation.length,
-    selectedPeople.length,
-    filterCategory,
-    currCategory,
-  );
+  // console.log(
+  //   wholePopulation.length,
+  //   selectedPeople.length,
+  //   filterCategory,
+  //   currCategory,
+  // );
   setPeopleFromFilter(selectedPeople);
   setPeople(selectedPeople);
 };

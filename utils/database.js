@@ -3,11 +3,14 @@ import firebase from 'firebase';
 export const saveDataFirebase = async data => {
   console.log(data);
   try {
-    await firebase
+    const res = await firebase
       .database()
       .ref('People/')
       .push(data);
+    console.log(res);
     console.log('SAVED');
+    const tempArr = res.toString().split('/');
+    return tempArr[tempArr.length - 1];
   } catch (err) {
     console.log(err);
   }
@@ -25,7 +28,6 @@ export const getAllDataFirebase = async () => {
           element[1].id = element[0];
           peopleArr.push(element[1]);
         });
-        console.log(peopleArr);
       }
     });
   return peopleArr;
@@ -33,13 +35,12 @@ export const getAllDataFirebase = async () => {
 
 export const UpdateDataFirebase = async data => {
   let person = `People/${data.id}/`;
-  console.log(person);
-  delete data.id;
-  console.log(data);
+  const temp = {...data};
+  delete temp.id;
   await firebase
     .database()
     .ref(person)
-    .update(data);
+    .update(temp);
 
   console.log('Update Completed');
 };
