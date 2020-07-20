@@ -7,7 +7,7 @@ const Wards = ({allWards, setCurrWard}) => {
       <View style={styles.headerCategories}>
         {allWards.map(ward => {
           return (
-            <View style={styles.wardBtn}>
+            <View style={styles.wardBtn} key={`ward-header:${ward}`}>
               <Button
                 onPress={() => setCurrWard(ward)}
                 title={ward.toString()}

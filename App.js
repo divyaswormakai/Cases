@@ -4,6 +4,13 @@ import Header from './components/header';
 import Body from './components/body';
 import Footer from './components/footer';
 
+import {
+  saveDataFirebase,
+  getAllDataFirebase,
+  UpdateDataFirebase,
+  DeleteDataFirebase,
+} from './utils/database';
+
 const App = () => {
   //for name searching
   const [searchName, setSearchName] = useState('');
@@ -29,9 +36,8 @@ const App = () => {
 
   //inital render of the app
   useEffect(() => {
-    setWholePopulation(dummyData);
-    setPeople(dummyData);
-    findAllCategories(dummyData, setAllCategories);
+    //get data from firebase
+    CallInitialFunctions();
     setAllWards(wards);
   }, []);
 
@@ -64,21 +70,31 @@ const App = () => {
 
   // current ward data setting
   useEffect(() => {
-    if (currWard.toString() === 'Others') {
-      console.log('Others selecting');
-      let tempPeople = peopleFromFilter.filter(person => person.ward === 15);
-      setPeople(tempPeople);
-    } else if (currWard !== allWards[0]) {
-      let tempPeople = peopleFromFilter.filter(
-        person => person.ward.toString() === currWard,
-      );
-      setPeople(tempPeople);
-    } else {
-      setPeople(peopleFromFilter);
+    if (currWard !== undefined) {
+      if (currWard.toString() === 'Others') {
+        console.log('Others selecting');
+        let tempPeople = peopleFromFilter.filter(person => person.ward === 15);
+        setPeople(tempPeople);
+      } else if (currWard !== allWards[0]) {
+        let tempPeople = peopleFromFilter.filter(
+          person => person.ward.toString() === currWard,
+        );
+        setPeople(tempPeople);
+      } else {
+        setPeople(peopleFromFilter);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currWard]);
 
+  const CallInitialFunctions = async () => {
+    const peopleData = await getAllDataFirebase();
+    console.log('-----App.js--------');
+    console.log(peopleData);
+    setWholePopulation(peopleData);
+    setPeople(peopleData);
+    findAllCategories(peopleData, setAllCategories);
+  };
   const setCurrentCategory = value => {
     setCurrCategory(value);
     SelectCurrentCategoryPeople(
@@ -90,13 +106,36 @@ const App = () => {
     );
   };
 
-  const SaveNewData = newData => {
+  const SaveNewData = async newData => {
     console.log(newData);
-    let temp = wholePopulation.concat(newData);
-    setWholePopulation(temp);
-    setPeople(temp);
+    //savving to firebase
+    await saveDataFirebase(newData);
+    //in the front end part only
+    CallInitialFunctions();
     setCurrCategory('');
     setFilterCategory('All');
+    setCurrWard(allWards[0]);
+  };
+
+  const UpdateData = async updatedData => {
+    console.log(updatedData);
+    //savving to firebase
+    await UpdateDataFirebase(updatedData);
+    //in the front end part only
+    CallInitialFunctions();
+    setCurrCategory('');
+    setFilterCategory('All');
+    setCurrWard(allWards[0]);
+  };
+
+  const DeleteData = async data => {
+    console.log(data.id);
+    await DeleteDataFirebase(data);
+    //in the front end part only
+    CallInitialFunctions();
+    setCurrCategory('');
+    setFilterCategory('All');
+    setCurrWard(allWards[0]);
   };
 
   return (
@@ -112,11 +151,18 @@ const App = () => {
         currWard={currWard}
         setCurrWard={setCurrWard}
       />
-      <Body data={people} allCategories={allCategories} />
+      <Body
+        data={people}
+        allCategories={allCategories}
+        allWards={allWards}
+        UpdateData={UpdateData}
+        DeleteData={DeleteData}
+      />
       <Footer
         SaveNewData={SaveNewData}
         statusData={people}
         allCategories={allCategories}
+        allWards={allWards}
       />
     </View>
   );
@@ -236,10 +282,14 @@ const dummyData = [
     gender: 'Male',
     age: 30,
     location: 'Location 1',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Quarantine',
     ward: 1,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 2,
@@ -247,10 +297,14 @@ const dummyData = [
     gender: 'Male',
     age: 25,
     location: 'Location 2',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'India',
     status: 'Home Quarantine',
     ward: 1,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 3,
@@ -258,10 +312,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 3',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Kuwait',
     status: 'Released',
     ward: 2,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 4,
@@ -269,10 +327,14 @@ const dummyData = [
     gender: 'Male',
     age: 25,
     location: 'Location 3',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'USA',
     status: 'Isolation',
     ward: 5,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 5,
@@ -280,10 +342,14 @@ const dummyData = [
     gender: 'Male',
     age: 25,
     location: 'Location 5',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Home Quarantine',
     ward: 6,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 6,
@@ -291,10 +357,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 3',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'India',
     status: 'Home Quarantine',
     ward: 10,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 7,
@@ -302,10 +372,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 7',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 7,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 8,
@@ -313,10 +387,14 @@ const dummyData = [
     gender: 'Female',
     age: 55,
     location: 'Location 8',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Quarantine',
     ward: 7,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 8,
@@ -324,10 +402,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 8',
-    number: '0123456889',
+    contact: '0123456889',
     country: 'Nepal',
     status: 'Released',
     ward: 9,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 9,
@@ -335,10 +417,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 0',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Released',
     ward: 8,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 10,
@@ -346,10 +432,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 10',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 4,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 11,
@@ -357,10 +447,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 7',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 14,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 12,
@@ -368,10 +462,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 7',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 15,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 13,
@@ -379,10 +477,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 7',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 15,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
   {
     id: 14,
@@ -390,10 +492,14 @@ const dummyData = [
     gender: 'Female',
     age: 25,
     location: 'Location 7',
-    number: '0123456789',
+    contact: '0123456789',
     country: 'Nepal',
     status: 'Isolation',
     ward: 15,
+    entryDate: 'EntryDate',
+    dischargeDate: 'releaseDate',
+    entryReason: 'entry reasons',
+    exitReason: 'Exit Reason',
   },
 ];
 export default App;

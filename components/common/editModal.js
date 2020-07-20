@@ -1,103 +1,214 @@
 import React, {useState} from 'react';
-import {StyleSheet, View, Button, TextInput, Picker} from 'react-native';
+import {StyleSheet, View, Button, TextInput, Picker, Text} from 'react-native';
 import {Formik} from 'formik';
-const EditModal = ({toggleModal, allCategories, data}) => {
-  const [gender, setGender] = useState(data.gender);
-  const [location, setLocation] = useState(data.location);
-  const [country, setCountry] = useState(data.country);
 
+const EditModal = ({
+  toggleModal,
+  allCategories,
+  data,
+  allWards,
+  UpdateData,
+  DeleteData,
+}) => {
+  const [gender, setGender] = useState(data.gender);
+  const [status, setStatus] = useState(data.status);
+  const [ward, setWard] = useState(data.ward.toString());
+  const [allward, setAllWard] = useState(allWards);
+
+  console.log(data);
+
+  const DeleteDataInForm = async () => {
+    await DeleteData(data);
+    toggleModal();
+  };
   return (
     <View style={styles.modalBody}>
       <Formik
         initialValues={{
           name: data.name,
-          gender: data.gender,
-          contact: data.number,
-          reasons: '',
           age: data.age.toString(),
+          contact: data.contact.toString(),
+          location: data.location,
+          entryDate: data.entryDate,
+          dischargeDate: data.dischargeDate,
+          entryReason: data.entryReason,
+          exitReason: data.exitReason,
         }}
         onSubmit={values => {
           values.gender = gender;
-          values.location = location;
-          values.country = country;
+          values.status = status;
+          values.ward = ward;
+          values.id = data.id;
+          UpdateData(values);
           toggleModal();
-          console.log(values);
         }}>
         {props => (
           <>
-            <TextInput
-              placeholder="Full Name"
-              onChangeText={props.handleChange('name')}
-              value={props.values.name}
-            />
+            {/* Full name */}
             <View style={styles.modalBodyRow}>
-              <View style={styles.modalBodyRowElement}>
-                <Picker
-                  selectedValue={gender}
-                  onValueChange={itemVal => setGender(itemVal)}>
-                  {allCategories.Gender.map(gen => {
-                    return (
-                      <Picker.Item
-                        label={gen}
-                        value={gen}
-                        key={'Gender' + gen}
-                      />
-                    );
-                  })}
-                </Picker>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Full Name:</Text>
               </View>
-              <View style={styles.modalBodyRowElement}>
+              <View style={styles.modalBodyRowElementInput}>
                 <TextInput
-                  placeholder="Age"
-                  //   keyboardType="number-pad"
-                  onChangeText={props.handleChange('age')}
-                  value={props.values.age}
+                  style={styles.textInp}
+                  placeholder="Full Name"
+                  onChangeText={props.handleChange('name')}
+                  value={props.values.name}
                 />
               </View>
             </View>
+
+            {/* Age and Gender */}
             <View style={styles.modalBodyRow}>
+              {/* Age */}
               <View style={styles.modalBodyRowElement}>
+                <View style={styles.modalBodyRowInner}>
+                  <View style={styles.modalBodyRowElementLabel}>
+                    <Text>Age:</Text>
+                  </View>
+                  <View style={styles.modalBodyRowElementInput}>
+                    <TextInput
+                      style={styles.textInp}
+                      placeholder="Age"
+                      onChangeText={props.handleChange('age')}
+                      value={props.values.age}
+                      keyboardType="number-pad"
+                    />
+                  </View>
+                </View>
+              </View>
+              {/* Sex */}
+              <View style={styles.modalBodyRowElement}>
+                <View style={styles.modalBodyRowInner}>
+                  <View style={styles.modalBodyRowElementLabel}>
+                    <Text>Sex:</Text>
+                  </View>
+                  <View style={styles.modalBodyRowElementInput}>
+                    <Picker
+                      selectedValue={gender}
+                      onValueChange={itemVal => setGender(itemVal)}>
+                      {allCategories.Gender.map(gen => {
+                        return (
+                          <Picker.Item
+                            label={gen}
+                            value={gen}
+                            key={'Gender' + gen}
+                          />
+                        );
+                      })}
+                    </Picker>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Location */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Location:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
                 <TextInput
+                  style={styles.textInp}
                   placeholder="Location"
-                  onChangeText={text => setLocation(text)}
-                  value={location}
+                  onChangeText={props.handleChange('location')}
+                  value={props.values.location}
                 />
-              </View>
-              <View style={styles.modalBodyRowElement}>
-                <Picker
-                  selectedValue={location}
-                  onValueChange={itemVal => setLocation(itemVal)}>
-                  {allCategories.Location.map(loc => {
-                    return (
-                      <Picker.Item
-                        label={loc}
-                        value={loc}
-                        key={'location' + loc}
-                      />
-                    );
-                  })}
-                </Picker>
               </View>
             </View>
 
+            {/* Contact */}
             <View style={styles.modalBodyRow}>
-              <View style={styles.modalBodyRowElement}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Contact:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
                 <TextInput
-                  placeholder="Country"
-                  onChangeText={text => setCountry(text)}
-                  value={country}
+                  style={styles.textInp}
+                  placeholder="Contact Number"
+                  onChangeText={props.handleChange('contact')}
+                  value={props.values.contact}
+                  keyboardType={'number-pad'}
                 />
               </View>
-              <View style={styles.modalBodyRowElement}>
+            </View>
+
+            {/* Entry Date */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Entry Date:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
+                <TextInput
+                  style={styles.textInp}
+                  placeholder="Entry Date"
+                  onChangeText={props.handleChange('entryDate')}
+                  value={props.values.entryDate}
+                />
+              </View>
+            </View>
+
+            {/* Release Date */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Release Date:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
+                <TextInput
+                  style={styles.textInp}
+                  placeholder="Release Date"
+                  onChangeText={props.handleChange('dischargeDate')}
+                  value={props.values.dischargeDate}
+                />
+              </View>
+            </View>
+
+            {/* Entry Reason */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Reason for entry:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
+                <TextInput
+                  style={styles.textInp}
+                  placeholder="Country/Reason for Entry"
+                  onChangeText={props.handleChange('entryReason')}
+                  value={props.values.entryReason}
+                />
+              </View>
+            </View>
+
+            {/* Discharge Reason */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Reason for Discharge:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
+                <TextInput
+                  style={styles.textInp}
+                  placeholder="Discharge Reason"
+                  onChangeText={props.handleChange('exitReason')}
+                  value={props.values.exitReason}
+                />
+              </View>
+            </View>
+
+            {/* Current Status */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Current Status:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
                 <Picker
-                  selectedValue={country}
-                  onValueChange={itemVal => setCountry(itemVal)}>
-                  {allCategories.Country.map(loc => {
+                  selectedValue={status}
+                  onValueChange={itemVal => setStatus(itemVal)}>
+                  {allCategories.Status.map(stat => {
                     return (
                       <Picker.Item
-                        label={loc}
-                        value={loc}
-                        key={'location' + loc}
+                        label={stat}
+                        value={stat}
+                        key={'status' + stat}
                       />
                     );
                   })}
@@ -105,25 +216,52 @@ const EditModal = ({toggleModal, allCategories, data}) => {
               </View>
             </View>
 
-            <TextInput
-              placeholder="Contact Number"
-              onChangeText={props.handleChange('contact')}
-              value={props.values.contact}
-              keyboardType={'number-pad'}
-            />
+            {/* Ward */}
+            <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElementLabel}>
+                <Text>Ward:</Text>
+              </View>
+              <View style={styles.modalBodyRowElementInput}>
+                <Picker
+                  selectedValue={ward}
+                  onValueChange={itemVal => setWard(itemVal)}>
+                  {allward.map(tempWard => {
+                    if (tempWard === 'All') {
+                      tempWard = ' ';
+                    }
+                    return (
+                      <Picker.Item
+                        label={tempWard}
+                        value={tempWard}
+                        key={'ward-form:' + tempWard}
+                      />
+                    );
+                  })}
+                </Picker>
+              </View>
+            </View>
 
-            {/* <TextInput
-              placeholder="Entry Reason"
-              onChangeText={props.handleChange('reason')}
-              value={props.values.reason}
-            /> */}
-
-            <Button title="Submit" onPress={props.handleSubmit} />
+            <View style={styles.editFormButton}>
+              <Button title="Update" onPress={props.handleSubmit} />
+            </View>
             {/* set forms and input for all the data */}
           </>
         )}
       </Formik>
-      <Button title={'EXIT'} onPress={toggleModal} />
+      <View style={styles.editFormButtonDelete}>
+        <Button
+          title={'Delete'}
+          onPress={DeleteDataInForm}
+          style={styles.editFormButtonDelete}
+        />
+      </View>
+      <View style={styles.editFormButton}>
+        <Button
+          title={'Cancel'}
+          onPress={toggleModal}
+          style={styles.editFormButton}
+        />
+      </View>
     </View>
   );
 };
@@ -134,13 +272,44 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     flexDirection: 'column',
     justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  textInp: {
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 10,
   },
   modalBodyRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginVertical: 5,
+    borderColor: 'gray',
+    borderBottomWidth: 1,
+    paddingBottom: 5,
+  },
+  modalBodyRowInner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+
+    borderBottomWidth: 0,
   },
   modalBodyRowElement: {
     width: '40%',
+  },
+  modalBodyRowElementLabel: {
+    justifyContent: 'center',
+
+    width: '20%',
+  },
+  modalBodyRowElementInput: {
+    width: '60%',
+  },
+  editFormButton: {
+    marginVertical: 5,
+  },
+  editFormButtonDelete: {
+    marginVertical: 5,
+    color: 'red',
   },
 });
 

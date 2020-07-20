@@ -1,25 +1,29 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, Button, TextInput, Picker} from 'react-native';
 import {Formik} from 'formik';
-const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
+const FormModal = ({toggleModal, SaveNewData, allCategories, allWards}) => {
   const [gender, setGender] = useState('Male');
-  const [location, setLocation] = useState(allCategories.Location[0]);
-  const [country, setCountry] = useState(allCategories.Country[0]);
+  const [status, setStatus] = useState(allCategories.Status[0]);
+  const [ward, setWard] = useState(' ');
+  const [allward, setAllWard] = useState(allWards);
 
   return (
     <View style={styles.modalBody}>
       <Formik
         initialValues={{
           name: '',
-          gender: 'Male',
           age: 0,
           contact: '',
-          reasons: '',
+          location: '',
+          entryDate: '',
+          dischargeDate: '',
+          entryReason: '',
+          exitReason: '',
         }}
         onSubmit={values => {
           values.gender = gender;
-          values.location = location;
-          values.country = country;
+          values.status = status;
+          values.ward = ward;
           SaveNewData(values);
           toggleModal();
         }}>
@@ -28,9 +32,17 @@ const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
             <TextInput
               placeholder="Full Name"
               onChangeText={props.handleChange('name')}
-              value={props.values.title}
+              value={props.values.name}
             />
             <View style={styles.modalBodyRow}>
+              <View style={styles.modalBodyRowElement}>
+                <TextInput
+                  placeholder="Age"
+                  onChangeText={props.handleChange('age')}
+                  value={props.values.age}
+                  keyboardType="number-pad"
+                />
+              </View>
               <View style={styles.modalBodyRowElement}>
                 <Picker
                   selectedValue={gender}
@@ -46,64 +58,13 @@ const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
                   })}
                 </Picker>
               </View>
-              <View style={styles.modalBodyRowElement}>
-                <TextInput
-                  placeholder="Age"
-                  onChangeText={props.handleChange('age')}
-                  value={props.values.age}
-                  keyboardType="number-pad"
-                />
-              </View>
-            </View>
-            <View style={styles.modalBodyRow}>
-              <View style={styles.modalBodyRowElement}>
-                <TextInput
-                  placeholder="Location"
-                  onChangeText={text => setLocation(text)}
-                  value={location}
-                />
-              </View>
-              <View style={styles.modalBodyRowElement}>
-                <Picker
-                  selectedValue={location}
-                  onValueChange={itemVal => setLocation(itemVal)}>
-                  {allCategories.Location.map(loc => {
-                    return (
-                      <Picker.Item
-                        label={loc}
-                        value={loc}
-                        key={'location' + loc}
-                      />
-                    );
-                  })}
-                </Picker>
-              </View>
             </View>
 
-            <View style={styles.modalBodyRow}>
-              <View style={styles.modalBodyRowElement}>
-                <TextInput
-                  placeholder="Country"
-                  onChangeText={text => setCountry(text)}
-                  value={country}
-                />
-              </View>
-              <View style={styles.modalBodyRowElement}>
-                <Picker
-                  selectedValue={country}
-                  onValueChange={itemVal => setCountry(itemVal)}>
-                  {allCategories.Country.map(loc => {
-                    return (
-                      <Picker.Item
-                        label={loc}
-                        value={loc}
-                        key={'location' + loc}
-                      />
-                    );
-                  })}
-                </Picker>
-              </View>
-            </View>
+            <TextInput
+              placeholder="Location"
+              onChangeText={props.handleChange('location')}
+              value={props.values.location}
+            />
 
             <TextInput
               placeholder="Contact Number"
@@ -112,11 +73,64 @@ const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
               keyboardType={'number-pad'}
             />
 
-            {/* <TextInput
-              placeholder="Entry Reason"
-              onChangeText={props.handleChange('reason')}
-              value={props.values.reason}
-            /> */}
+            <TextInput
+              placeholder="Entry Date"
+              onChangeText={props.handleChange('entryDate')}
+              value={props.values.entryDate}
+            />
+
+            <TextInput
+              placeholder="Release Date"
+              onChangeText={props.handleChange('dischargeDate')}
+              value={props.values.dischargeDate}
+            />
+
+            <TextInput
+              placeholder="Country/Reason for Entry"
+              onChangeText={props.handleChange('entryReason')}
+              value={props.values.entryReason}
+            />
+
+            <TextInput
+              placeholder="Discharge Reason"
+              onChangeText={props.handleChange('exitReason')}
+              value={props.values.exitReason}
+            />
+
+            <View>
+              <Picker
+                selectedValue={status}
+                onValueChange={itemVal => setStatus(itemVal)}>
+                {allCategories.Status.map(stat => {
+                  return (
+                    <Picker.Item
+                      label={stat}
+                      value={stat}
+                      key={'status' + stat}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
+
+            <View>
+              <Picker
+                selectedValue={ward}
+                onValueChange={itemVal => setWard(itemVal)}>
+                {allward.map(tempWard => {
+                  if (tempWard === 'All') {
+                    tempWard = ' ';
+                  }
+                  return (
+                    <Picker.Item
+                      label={tempWard}
+                      value={tempWard}
+                      key={'ward-form:' + tempWard}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
 
             <Button title="Submit" onPress={props.handleSubmit} />
             {/* set forms and input for all the data */}
@@ -127,6 +141,11 @@ const FormModal = ({toggleModal, SaveNewData, allCategories}) => {
     </View>
   );
 };
+
+// {
+//   status: 'Quarantine',
+//   ward: 1,
+// },
 
 const styles = StyleSheet.create({
   modalBody: {

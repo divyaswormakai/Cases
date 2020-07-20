@@ -4,7 +4,7 @@ import Status from './footerComponents/Status';
 import AddPerson from './footerComponents/AddPerson';
 import FormModal from './common/modal';
 
-const Footer = ({SaveNewData, statusData, allCategories}) => {
+const Footer = ({SaveNewData, statusData, allCategories, allWards}) => {
   const [showModal, setShowModal] = useState(false);
 
   const toggleModal = () => {
@@ -23,6 +23,7 @@ const Footer = ({SaveNewData, statusData, allCategories}) => {
           toggleModal={toggleModal}
           SaveNewData={SaveNewData}
           allCategories={allCategories}
+          allWards={allWards}
         />
       </Modal>
     </View>

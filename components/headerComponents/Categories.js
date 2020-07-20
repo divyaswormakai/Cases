@@ -8,7 +8,7 @@ const Categories = ({categories, setCurrentCategory}) => {
         {categories.length > 0
           ? categories.map(category => {
               return (
-                <View style={styles.categoryBtn}>
+                <View style={styles.categoryBtn} key={category}>
                   <Button
                     title={category}
                     onPress={() => setCurrentCategory(category)}

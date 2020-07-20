@@ -12,8 +12,10 @@ var config = {
   projectId: 'cases-bf52f',
 };
 
-if (!firebase.app.length) {
+if (!firebase.apps.length) {
+  console.log('Initializing new app');
   firebase.initializeApp(config);
 }
+console.log(firebase.apps.length);
 
 AppRegistry.registerComponent(appName, () => App);

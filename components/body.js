@@ -9,7 +9,7 @@ import {
 import BodyListItem from './bodyComponents/BodyListItem';
 import EditModal from './common/editModal';
 
-const Body = ({data, allCategories}) => {
+const Body = ({data, allCategories, allWards, UpdateData, DeleteData}) => {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState({});
 
@@ -48,6 +48,9 @@ const Body = ({data, allCategories}) => {
           toggleModal={toggleModal}
           allCategories={allCategories}
           data={modalData}
+          allWards={allWards}
+          UpdateData={UpdateData}
+          DeleteData={DeleteData}
         />
       </Modal>
     </View>
