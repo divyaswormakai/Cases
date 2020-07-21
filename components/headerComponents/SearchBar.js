@@ -9,6 +9,7 @@ const SearchBar = ({setSearchName, searchName}) => {
         value={searchName}
         style={styles.headerSearchBar}
         placeholder="Search by Name"
+        underlineColorAndroid={'rgba(0,0,255,0.2)'}
       />
     </View>
   );

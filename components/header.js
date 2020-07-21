@@ -38,7 +38,7 @@ const Header = ({
 
 const styles = StyleSheet.create({
   headerContent: {
-    flex: 1,
+    flex: 2,
     justifyContent: 'center',
     flexDirection: 'column',
     marginBottom: 10,
